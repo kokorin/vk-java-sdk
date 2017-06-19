@@ -2,6 +2,7 @@ package com.vk.api.sdk.queries.wall;
 
 import com.vk.api.sdk.client.AbstractQueryBuilder;
 import com.vk.api.sdk.client.VkApiClient;
+import com.vk.api.sdk.client.actors.ServiceActor;
 import com.vk.api.sdk.client.actors.UserActor;
 import com.vk.api.sdk.objects.wall.responses.SearchExtendedResponse;
 import com.vk.api.sdk.queries.EnumParam;
@@ -30,8 +31,10 @@ public class WallSearchQueryWithExtended extends AbstractQueryBuilder<WallSearch
      *
      * @param client VK API client
      */
-    public WallSearchQueryWithExtended(VkApiClient client) {
+    public WallSearchQueryWithExtended(VkApiClient client, ServiceActor actor) {
         super(client, "wall.search", SearchExtendedResponse.class);
+        accessToken(actor.getAccessToken());
+        clientSecret(actor.getClientSecret());
         extended(true);
     }
 
@@ -84,6 +87,16 @@ public class WallSearchQueryWithExtended extends AbstractQueryBuilder<WallSearch
      */
     public WallSearchQueryWithExtended count(Integer value) {
         return unsafeParam("count", value);
+    }
+
+    /**
+     * Results offset.
+     *
+     * @param value value of "offset" parameter. Default 0.
+     * @return a reference to this {@code AbstractQueryBuilder} object to fulfill the "Builder" pattern.
+     */
+    public WallSearchQueryWithExtended offset(Integer value) {
+        return unsafeParam("offset", value);
     }
 
     /**

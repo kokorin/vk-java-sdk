@@ -16,7 +16,6 @@ import com.vk.api.examples.youtrack.storage.MembersStorage;
 import com.vk.api.examples.youtrack.storage.users.YouTrackUsersStorage;
 import com.vk.api.sdk.client.TransportClient;
 import com.vk.api.sdk.client.VkApiClient;
-import com.vk.api.sdk.client.actors.Actor;
 import com.vk.api.sdk.client.actors.GroupActor;
 import com.vk.api.sdk.exceptions.ApiException;
 import com.vk.api.sdk.exceptions.ClientException;
@@ -25,11 +24,11 @@ import com.vk.api.sdk.objects.groups.responses.GetCallbackConfirmationCodeRespon
 import com.vk.api.sdk.objects.groups.responses.GetCallbackServerSettingsResponse;
 import com.vk.api.sdk.objects.groups.responses.SetCallbackServerResponse;
 import com.vk.api.sdk.objects.groups.responses.SetCallbackServerResponseStateCode;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import org.eclipse.jetty.server.Handler;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.server.handler.HandlerCollection;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.io.IOException;
@@ -44,7 +43,7 @@ import java.util.concurrent.TimeUnit;
  */
 public class Application {
 
-    private static final Logger LOG = LogManager.getLogger(Application.class);
+    private static final Logger LOG = LoggerFactory.getLogger(Application.class);
 
     private static GroupActor actor = null;
 
@@ -92,14 +91,14 @@ public class Application {
 
         ConfirmationCodeRequestHandler confirmationCodeRequestHandler = null;
 
-        GetCallbackServerSettingsResponse getCallbackServerSettingsResponse = vk.groups().getCallbackServerSettings(actor, actor.getGroupId()).execute();
+        GetCallbackServerSettingsResponse getCallbackServerSettingsResponse = vk.groups().getCallbackServerSettings(actor).execute();
         if (!getCallbackServerSettingsResponse.getServerUrl().equals(host)) {
-            GetCallbackConfirmationCodeResponse getCallbackConfirmationCodeResponse = vk().groups().getCallbackConfirmationCode(actor, actor.getGroupId()).execute();
+            GetCallbackConfirmationCodeResponse getCallbackConfirmationCodeResponse = vk().groups().getCallbackConfirmationCode(actor).execute();
             String confirmationCode = getCallbackConfirmationCodeResponse.getCode();
             confirmationCodeRequestHandler = new ConfirmationCodeRequestHandler(confirmationCode);
         }
 
-        vk.groups().setCallbackSettings(actor, actor.getGroupId()).messageNew(true).execute();
+        vk.groups().setCallbackSettings(actor).messageNew(true).execute();
 
         CallbackRequestHandler callbackRequestHandler = new CallbackRequestHandler();
 
@@ -115,7 +114,7 @@ public class Application {
         server.start();
 
         for (int i = 0; i < 10; i++) {
-            SetCallbackServerResponse response = vk.groups().setCallbackServer(actor, actor.getGroupId())
+            SetCallbackServerResponse response = vk.groups().setCallbackServer(actor)
                     .serverUrl(host)
                     .execute();
 
@@ -227,7 +226,7 @@ public class Application {
         return properties;
     }
 
-    public static Actor actor() {
+    public static GroupActor actor() {
         return actor;
     }
 
